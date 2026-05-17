@@ -1,0 +1,13 @@
+node_modules/
+.npm-cache/
+dist/
+build/
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+.env
+backend/.env
+frontend/.env
