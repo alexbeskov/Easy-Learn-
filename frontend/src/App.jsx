@@ -20,6 +20,7 @@ const translations = {
     locale: "en-US",
     navProduct: "Product",
     navWorkspace: "Workspace",
+    navShop: "Store",
     languageLabel: "Language",
     themeLabel: "Theme",
     languageRu: "RU",
@@ -85,6 +86,19 @@ const translations = {
     sourcesTitle: "Sources",
     openSource: "Open source",
     warningsTitle: "Warnings",
+    moduleDetails: "Module details",
+    openModule: "Open module",
+    closeModule: "Close module",
+    shopEyebrow: "Store",
+    shopTitle: "Spend your IQ POINTS on practice boosts",
+    shopText: "Use earned IQ POINTS for challenges, mentor feedback, and premium prompts.",
+    pointsBalance: "Balance",
+    shopItem1Title: "Challenge Pack",
+    shopItem1Text: "10 practical tasks with instant rubric.",
+    shopItem2Title: "Prompt Library",
+    shopItem2Text: "50 high-performing prompt templates.",
+    shopItem3Title: "Mentor Review",
+    shopItem3Text: "Personal feedback on one project.",
     noWarnings: "No issues detected for this generation.",
     emptyCourseTitle: "No course yet",
     emptyCourseText:
@@ -97,6 +111,7 @@ const translations = {
     locale: "ru-RU",
     navProduct: "О продукте",
     navWorkspace: "Конструктор",
+    navShop: "Магазин",
     languageLabel: "Язык",
     themeLabel: "Тема",
     languageRu: "RU",
@@ -162,6 +177,19 @@ const translations = {
     sourcesTitle: "Источники",
     openSource: "Открыть источник",
     warningsTitle: "Предупреждения",
+    moduleDetails: "Детали модуля",
+    openModule: "Открыть модуль",
+    closeModule: "Скрыть модуль",
+    shopEyebrow: "Магазин",
+    shopTitle: "Тратьте свои IQ POINTS на ускорение обучения",
+    shopText: "Используйте заработанные IQ POINTS для челленджей, фидбека ментора и премиум-промптов.",
+    pointsBalance: "Баланс",
+    shopItem1Title: "Пакет задач",
+    shopItem1Text: "10 практических заданий с автопроверкой.",
+    shopItem2Title: "Библиотека промптов",
+    shopItem2Text: "50 шаблонов промптов с высокой отдачей.",
+    shopItem3Title: "Разбор от ментора",
+    shopItem3Text: "Персональный фидбек по одному проекту.",
     noWarnings: "Проблем при генерации не обнаружено.",
     emptyCourseTitle: "Курс пока не создан",
     emptyCourseText:
@@ -181,6 +209,7 @@ function App() {
   const [history, setHistory] = useState([]);
   const [course, setCourse] = useState(null);
   const [selectedHistoryId, setSelectedHistoryId] = useState(null);
+  const [openModuleIndex, setOpenModuleIndex] = useState(0);
 
   const t = translations[language] || translations.en;
 
@@ -277,6 +306,7 @@ function App() {
       startTransition(() => {
         setCourse(nextCourse);
         setSelectedHistoryId(historyItem.id);
+        setOpenModuleIndex(0);
         setHistory((current) => {
           const updated = [historyItem, ...current].slice(0, 6);
           window.localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
@@ -293,6 +323,7 @@ function App() {
   function loadHistoryItem(item) {
     setSelectedHistoryId(item.id);
     setCourse(item.course);
+    setOpenModuleIndex(0);
     setStatus("success");
     setError("");
   }
@@ -316,6 +347,7 @@ function App() {
             <div className="topbar-links">
               <a href="#product">{t.navProduct}</a>
               <a href="#workspace">{t.navWorkspace}</a>
+              <a href="#shop">{t.navShop}</a>
             </div>
             <div className="control-cluster">
               <ToggleGroup
@@ -474,6 +506,34 @@ function App() {
           </div>
         </section>
 
+
+        <section className="shop-section" id="shop">
+          <div className="shop-head">
+            <div>
+              <p className="eyebrow">{t.shopEyebrow}</p>
+              <h2>{t.shopTitle}</h2>
+            </div>
+            <p className="workspace-note">{t.shopText}</p>
+          </div>
+          <div className="shop-grid">
+            <article className="glass-card shop-balance">
+              <p className="muted-text">{t.pointsBalance}</p>
+              <strong>2,450 IQ POINTS</strong>
+            </article>
+            {[
+              { title: t.shopItem1Title, text: t.shopItem1Text, price: '350 IQ POINTS' },
+              { title: t.shopItem2Title, text: t.shopItem2Text, price: '500 IQ POINTS' },
+              { title: t.shopItem3Title, text: t.shopItem3Text, price: '900 IQ POINTS' },
+            ].map((item) => (
+              <article className="glass-card shop-item" key={item.title}>
+                <h3>{item.title}</h3>
+                <p>{item.text}</p>
+                <span>{item.price}</span>
+              </article>
+            ))}
+          </div>
+        </section>
+
         <section className="result-section">
           <div className="result-head">
             <div>
@@ -482,14 +542,14 @@ function App() {
             </div>
           </div>
 
-          {course ? <CourseView course={course} t={t} /> : <EmptyCourseState t={t} />}
+          {course ? <CourseView course={course} t={t} openModuleIndex={openModuleIndex} setOpenModuleIndex={setOpenModuleIndex} /> : <EmptyCourseState t={t} />}
         </section>
       </main>
     </div>
   );
 }
 
-function CourseView({ course, t }) {
+function CourseView({ course, t, openModuleIndex, setOpenModuleIndex }) {
   return (
     <div className="course-layout">
       <div className="glass-card course-summary">
@@ -504,16 +564,36 @@ function CourseView({ course, t }) {
       </div>
 
       <div className="course-main">
-        <div className="module-list">
-          {course.modules.map((module, index) => (
-            <article className="glass-card module-card" key={`${module.title}-${index}`}>
-              <div className="module-number">{t.modulePrefix} {index + 1}</div>
-              <h3>{module.title}</h3>
-              <p className="module-goal">{module.goal}</p>
-              <p>{module.content}</p>
-              <ListBlock title={t.keyPoints} items={module.key_points} />
-            </article>
-          ))}
+        <div className="module-list-horizontal">
+          {course.modules.map((module, index) => {
+            const isOpen = openModuleIndex === index;
+            return (
+              <article className={`glass-card module-card ${isOpen ? "is-open" : ""}`} key={`${module.title}-${index}`}>
+                <button
+                  type="button"
+                  className="module-toggle"
+                  onClick={() => setOpenModuleIndex(isOpen ? -1 : index)}
+                  aria-expanded={isOpen}
+                  aria-label={isOpen ? t.closeModule : t.openModule}
+                >
+                  <div>
+                    <div className="module-number">{t.modulePrefix} {index + 1}</div>
+                    <h3>{module.title}</h3>
+                  </div>
+                  <span className={`module-arrow ${isOpen ? "is-open" : ""}`}>▾</span>
+                </button>
+                {isOpen ? (
+                  <div className="module-body">
+                    <p className="module-goal">{module.goal}</p>
+                    <p>{module.content}</p>
+                    <ListBlock title={t.keyPoints} items={module.key_points} />
+                  </div>
+                ) : (
+                  <p className="muted-text">{t.moduleDetails}</p>
+                )}
+              </article>
+            );
+          })}
         </div>
       </div>
 
