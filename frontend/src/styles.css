@@ -80,6 +80,7 @@ button {
 .hero,
 .feature-strip,
 .workspace,
+.shop-section,
 .result-section {
   width: min(1180px, calc(100% - 32px));
   margin: 0 auto;
@@ -385,11 +386,13 @@ button {
 }
 
 .workspace,
+.shop-section,
 .result-section {
   padding: 40px 0 64px;
 }
 
 .workspace-header,
+.shop-head,
 .result-head {
   display: flex;
   align-items: end;
@@ -464,8 +467,7 @@ button {
 }
 
 .history-list,
-.source-list,
-.module-list {
+.source-list {
   display: grid;
   gap: 14px;
 }
@@ -589,16 +591,81 @@ button {
   text-align: center;
 }
 
+
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.shop-balance,
+.shop-item {
+  border-radius: 24px;
+  padding: 24px;
+}
+
+.shop-balance strong,
+.shop-item span {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--accent-deep);
+}
+
+.shop-item h3 {
+  margin: 0 0 8px;
+}
+
+.module-list-horizontal {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(280px, 1fr);
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.module-card {
+  min-height: 220px;
+}
+
+.module-toggle {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.module-arrow {
+  display: inline-flex;
+  transition: transform 150ms ease;
+  font-size: 1.3rem;
+}
+
+.module-arrow.is-open {
+  transform: rotate(180deg);
+}
+
+.module-body {
+  margin-top: 12px;
+}
 @media (max-width: 980px) {
   .hero-grid,
   .workspace-grid,
   .course-layout,
   .feature-strip,
-  .summary-grid {
+  .summary-grid,
+  .shop-grid {
     grid-template-columns: 1fr;
   }
 
   .workspace-header,
+  .shop-head,
   .result-head,
   .topbar {
     align-items: flex-start;
